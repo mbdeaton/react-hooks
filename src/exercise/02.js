@@ -8,9 +8,7 @@ function Greeting({initialName = ''}) {
     () => window.localStorage.getItem('greetingName') ?? initialName,
   )
 
-  React.useEffect(() => {
-    window.localStorage.setItem('greetingName', name)
-  })
+  React.useEffect(() => window.localStorage.setItem('greetingName', name), [name])
 
   function handleChange(event) {
     setName(event.target.value)
