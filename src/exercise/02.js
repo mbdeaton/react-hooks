@@ -3,19 +3,28 @@
 
 import * as React from 'react'
 
-function useLocalStorageName(initialName) {
-  const [name, setName] = React.useState(
-    () => window.localStorage.getItem('greetingName') ?? initialName,
-  )
+/**
+ * Create state that is synced with local storage
+ * @param {string} key The key to label this value in localStorage
+ * @param {any} initialVal The value to set in localStorage initially
+ * @returns {[any, function]} The value and its setter function
+ */
+function useLocalStorageState(key, initialVal) {
+  function getStorageOrInitialVal() {
+    const storedJSON = window.localStorage.getItem(key)
+    const storedVal = JSON.parse(storedJSON)
+    return storedVal ?? initialVal
+  }
+  const [val, setVal] = React.useState(() => getStorageOrInitialVal())
   React.useEffect(
-    () => window.localStorage.setItem('greetingName', name),
-    [name],
+    () => window.localStorage.setItem(key, JSON.stringify(val)),
+    [key, val],
   )
-  return [name, setName]
+  return [val, setVal]
 }
 
 function Greeting({initialName = ''}) {
-  const [name, setName] = useLocalStorageName(initialName)
+  const [name, setName] = useLocalStorageState('greetingName', initialName)
   function handleChange(event) {
     setName(event.target.value)
   }
