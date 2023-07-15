@@ -10,12 +10,14 @@ import * as React from 'react'
  * @returns {[any, function]} The value and its setter function
  */
 function useLocalStorageState(key, initialVal) {
-  function getStorageOrInitialVal() {
-    const storedJSON = window.localStorage.getItem(key)
-    const storedVal = JSON.parse(storedJSON)
-    return storedVal ?? initialVal
-  }
-  const [val, setVal] = React.useState(() => getStorageOrInitialVal())
+  const [val, setVal] = React.useState(() => {
+    const storedVal = window.localStorage.getItem(key)
+    if (storedVal) {
+      return JSON.parse(storedVal)
+    } else {
+      return initialVal
+    }
+  })
   React.useEffect(
     () => window.localStorage.setItem(key, JSON.stringify(val)),
     [key, val],
