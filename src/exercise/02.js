@@ -2,26 +2,41 @@
 // http://localhost:3000/isolated/exercise/02.js
 
 import * as React from 'react'
+import {preProcessFile} from 'typescript'
 
 /**
  * Create state that is synced with local storage
- * @param {string} key The key to label this value in localStorage
- * @param {any} initialVal The value to set in localStorage initially
+ * @param {string} key - The key to label this value in localStorage
+ * @param {any} initialVal - The value to set in localStorage initially
+ * @param {object} obj
+ * @param {function} obj.serialize - The serialization function
+ * @param {function} obj.deserialize - The deserialization function
  * @returns {[any, function]} The value and its setter function
  */
-function useLocalStorageState(key, initialVal) {
+function useLocalStorageState(
+  key,
+  initialVal = '',
+  {serialize = JSON.stringify, deserialize = JSON.parse} = {},
+) {
   const [val, setVal] = React.useState(() => {
     const storedVal = window.localStorage.getItem(key)
     if (storedVal) {
-      return JSON.parse(storedVal)
+      return deserialize(storedVal)
     } else {
-      return initialVal
+      return typeof initialVal === 'function' ? initialVal() : initialVal
     }
   })
-  React.useEffect(
-    () => window.localStorage.setItem(key, JSON.stringify(val)),
-    [key, val],
-  )
+
+  const prevKeyRef = React.useRef(key)
+
+  React.useEffect(() => {
+    const prevKey = prevKeyRef.current
+    if (prevKey !== key) {
+      window.localStorage.removeItem(prevKey)
+    }
+    prevKeyRef.current = key
+    window.localStorage.setItem(key, serialize(val))
+  }, [key, serialize, val])
   return [val, setVal]
 }
 
