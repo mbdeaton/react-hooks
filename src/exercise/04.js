@@ -1,8 +1,22 @@
 import * as React from 'react'
 
+function useLocalStorageState(key, defaultVal = '') {
+  const [state, setState] = React.useState(
+    JSON.parse(window.localStorage.getItem(key)) ?? defaultVal,
+  )
+  React.useEffect(
+    () => window.localStorage.setItem(key, JSON.stringify(state)),
+    [key, state],
+  )
+  return [state, setState]
+}
+
 function Board() {
   // managed state
-  const [squares, setSquares] = React.useState(Array(9).fill(null))
+  const [squares, setSquares] = useLocalStorageState(
+    'squares',
+    Array(9).fill(null),
+  )
 
   // derived state
   const nextValue = calculateNextValue(squares)
