@@ -1,15 +1,5 @@
 import * as React from 'react'
-
-function useLocalStorageState(key, defaultVal = '') {
-  const [state, setState] = React.useState(
-    JSON.parse(window.localStorage.getItem(key)) ?? defaultVal,
-  )
-  React.useEffect(
-    () => window.localStorage.setItem(key, JSON.stringify(state)),
-    [key, state],
-  )
-  return [state, setState]
-}
+import {useLocalStorageState} from '../utils'
 
 function Board() {
   // managed state
